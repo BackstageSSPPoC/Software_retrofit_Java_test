@@ -221,13 +221,8 @@ spec:
       name: Fetch Common Template Files
       action: fetch:template
       input:
-        url: ./template
+        url: ./template/skeleton
         # Excludes language-specific Jenkinsfile folders — only root files are picked
-        exclude:                    # ← yeh add karo
-        - nodejs/**
-        - java-maven/**
-        - java-gradle/**
-        - python/**
         values:
           app_name: ${{ parameters.repo }}
           app_env: ${{ parameters.environment }}
