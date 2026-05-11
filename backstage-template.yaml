@@ -169,143 +169,13 @@
 
 
 
-# apiVersion: scaffolder.backstage.io/v1beta3
-# kind: Template
-
-# metadata:
-#   name: retrofit-jenkins-argocd-Generic
-#   title: Integrating CI/CD Into Existing Generic-Repo
-#   description: Inject CI/CD directly into Desired Repo/Branch (Node.js / Java Maven / Java Gradle)
-
-# spec:
-#   owner: development
-#   type: service
-
-#   parameters:
-#     - title: Select Repo & Language
-#       required:
-#         - repo
-#         - language
-#       properties:
-
-#         repo:
-#           title: Select Repository
-#           type: string
-
-#         language:
-#           title: Project Language / Build Tool
-#           type: string
-#           enum:
-#             - nodejs
-#             - java-maven
-#             - java-gradle
-#             - python
-#           enumNames:
-#             - "Node.js (npm)"
-#             - "Java (Maven)"
-#             - "Java (Gradle)"
-#             - "Python (pip)"
-
-#         environment:
-#           title: Environment
-#           type: string
-#           enum:
-#             - dev
-#             - prod
-
-#   steps:
-
-#     # ─── Common files: manifests, catalog-info, sonar, Dockerfile ───────────────
-
-#     - id: fetch-common
-#       name: Fetch Common Template Files
-#       action: fetch:template
-#       input:
-#         url: ./template/skeleton
-#         # Excludes language-specific Jenkinsfile folders — only root files are picked
-#         values:
-#           app_name: ${{ parameters.repo }}
-#           app_env: ${{ parameters.environment }}
-#           language: ${{ parameters.language }}
-
-#     # ─── Node.js Pipeline ────────────────────────────────────────────────────────
-
-#     - id: fetch-nodejs-pipeline
-#       name: Fetch Node.js Jenkinsfile
-#       if: ${{ parameters.language === "nodejs" }}
-#       action: fetch:template
-#       input:
-#         url: ./template/nodejs
-#         targetPath: ./
-#         values:
-#           app_name: ${{ parameters.repo }}
-#           app_env: ${{ parameters.environment }}
-
-#     # ─── Java Maven Pipeline ─────────────────────────────────────────────────────
-
-#     - id: fetch-java-maven-pipeline
-#       name: Fetch Java Maven Jenkinsfile
-#       if: ${{ parameters.language === "java-maven" }}
-#       action: fetch:template
-#       input:
-#         url: ./template/java-maven
-#         targetPath: ./
-#         values:
-#           app_name: ${{ parameters.repo }}
-#           app_env: ${{ parameters.environment }}
-
-#     # ─── Java Gradle Pipeline ────────────────────────────────────────────────────
-
-#     - id: fetch-java-gradle-pipeline
-#       name: Fetch Java Gradle Jenkinsfile
-#       if: ${{ parameters.language === "java-gradle" }}
-#       action: fetch:template
-#       input:
-#         url: ./template/java-gradle
-#         targetPath: ./
-#         values:
-#           app_name: ${{ parameters.repo }}
-#           app_env: ${{ parameters.environment }}
-
-#     # ─── Python Pipeline ────────────────────────────────────────────────────────
-
-#     - id: fetch-python-pipeline
-#       name: Fetch Python Jenkinsfile
-#       if: ${{ parameters.language === "python" }}
-#       action: fetch:template
-#       input:
-#         url: ./template/python
-#         targetPath: ./
-#         values:
-#           app_name: ${{ parameters.repo }}
-#           app_env: ${{ parameters.environment }}
-
-#     # ─── Inject everything into the target repo ──────────────────────────────────
-
-#     - id: push-to-repo
-#       name: Inject CI/CD Directly
-#       action: github:push
-#       input:
-#         repoUrl: github.com?owner=BackstageSSPPoC&repo=${{ parameters.repo }}
-#         branch: main
-#         commitMessage: "chore: inject ${{ parameters.language }} CI/CD template"
-#         sourcePath: ./
-
-#   output:
-#     links:
-#       - title: View Repository
-#         url: https://github.com/BackstageSSPPoC/${{ parameters.repo | trim }}/tree/main
-
-
-
-
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 
 metadata:
-  name: retrofit-jenkins-argocd Generic-Template
-  title: Integrating CI/CD Into Existing Repo - Generic-Template
-  description: Integrating CI/CD directly into Desired Repo/Branch (Node.js / Java Maven / Java Gradle / Python)
+  name: retrofit-jenkins-argocd-Generic
+  title: Integrating CI/CD Into Existing Generic-Repo
+  description: Inject CI/CD directly into Desired Repo/Branch (Node.js / Java Maven / Java Gradle)
 
 spec:
   owner: development
@@ -332,9 +202,9 @@ spec:
             - python
           enumNames:
             - "Node.js (npm)"
-            - "Java Maven"      
-            - "Java Gradle"         
-            - "Python Flask"      
+            - "Java (Maven)"
+            - "Java (Gradle)"
+            - "Python (pip)"
 
         environment:
           title: Environment
@@ -343,71 +213,22 @@ spec:
             - dev
             - prod
 
-        app_port:
-          title: App Port
-          type: string
-          ui:widget: hidden
-          default: "8080"
-
-      dependencies:
-        language:
-          oneOf:
-            - properties:
-                language:
-                  enum:
-                    - nodejs
-                app_port:
-                  type: string
-                  default: "3000"
-                  ui:widget: hidden
-              required:
-                - app_port
-
-            - properties:
-                language:
-                  enum:
-                    - java-maven
-                app_port:
-                  type: string
-                  default: "8080"
-                  ui:widget: hidden
-              required:
-                - app_port
-
-            - properties:
-                language:
-                  enum:
-                    - java-gradle
-                app_port:
-                  type: string
-                  default: "8080"
-                  ui:widget: hidden
-              required:
-                - app_port
-
-            - properties:
-                language:
-                  enum:
-                    - python
-                app_port:
-                  type: string
-                  default: "5000"
-                  ui:widget: hidden
-              required:
-                - app_port
-
   steps:
+
+    # ─── Common files: manifests, catalog-info, sonar, Dockerfile ───────────────
 
     - id: fetch-common
       name: Fetch Common Template Files
       action: fetch:template
       input:
-        url: ./template/common
+        url: ./template/skeleton
+        # Excludes language-specific Jenkinsfile folders — only root files are picked
         values:
           app_name: ${{ parameters.repo }}
           app_env: ${{ parameters.environment }}
           language: ${{ parameters.language }}
-          app_port: ${{ parameters.app_port }}
+
+    # ─── Node.js Pipeline ────────────────────────────────────────────────────────
 
     - id: fetch-nodejs-pipeline
       name: Fetch Node.js Jenkinsfile
@@ -419,7 +240,8 @@ spec:
         values:
           app_name: ${{ parameters.repo }}
           app_env: ${{ parameters.environment }}
-          app_port: ${{ parameters.app_port }}
+
+    # ─── Java Maven Pipeline ─────────────────────────────────────────────────────
 
     - id: fetch-java-maven-pipeline
       name: Fetch Java Maven Jenkinsfile
@@ -431,7 +253,8 @@ spec:
         values:
           app_name: ${{ parameters.repo }}
           app_env: ${{ parameters.environment }}
-          app_port: ${{ parameters.app_port }}
+
+    # ─── Java Gradle Pipeline ────────────────────────────────────────────────────
 
     - id: fetch-java-gradle-pipeline
       name: Fetch Java Gradle Jenkinsfile
@@ -443,7 +266,8 @@ spec:
         values:
           app_name: ${{ parameters.repo }}
           app_env: ${{ parameters.environment }}
-          app_port: ${{ parameters.app_port }}
+
+    # ─── Python Pipeline ────────────────────────────────────────────────────────
 
     - id: fetch-python-pipeline
       name: Fetch Python Jenkinsfile
@@ -455,7 +279,8 @@ spec:
         values:
           app_name: ${{ parameters.repo }}
           app_env: ${{ parameters.environment }}
-          app_port: ${{ parameters.app_port }}
+
+    # ─── Inject everything into the target repo ──────────────────────────────────
 
     - id: push-to-repo
       name: Inject CI/CD Directly
@@ -463,10 +288,185 @@ spec:
       input:
         repoUrl: github.com?owner=BackstageSSPPoC&repo=${{ parameters.repo }}
         branch: main
-        commitMessage: "chore: inject ${{ parameters.language }} CI/CD template (port: ${{ parameters.app_port }})"
+        commitMessage: "chore: inject ${{ parameters.language }} CI/CD template"
         sourcePath: ./
 
   output:
     links:
       - title: View Repository
         url: https://github.com/BackstageSSPPoC/${{ parameters.repo | trim }}/tree/main
+
+
+
+
+# apiVersion: scaffolder.backstage.io/v1beta3
+# kind: Template
+
+# metadata:
+#   name: retrofit-jenkins-argocd Generic-Template
+#   title: Integrating CI/CD Into Existing Repo - Generic-Template
+#   description: Integrating CI/CD directly into Desired Repo/Branch (Node.js / Java Maven / Java Gradle / Python)
+
+# spec:
+#   owner: development
+#   type: service
+
+#   parameters:
+#     - title: Select Repo & Language
+#       required:
+#         - repo
+#         - language
+#       properties:
+
+#         repo:
+#           title: Select Repository
+#           type: string
+
+#         language:
+#           title: Project Language / Build Tool
+#           type: string
+#           enum:
+#             - nodejs
+#             - java-maven
+#             - java-gradle
+#             - python
+#           enumNames:
+#             - "Node.js (npm)"
+#             - "Java Maven"      
+#             - "Java Gradle"         
+#             - "Python Flask"      
+
+#         environment:
+#           title: Environment
+#           type: string
+#           enum:
+#             - dev
+#             - prod
+
+#         app_port:
+#           title: App Port
+#           type: string
+#           ui:widget: hidden
+#           default: "8080"
+
+#       dependencies:
+#         language:
+#           oneOf:
+#             - properties:
+#                 language:
+#                   enum:
+#                     - nodejs
+#                 app_port:
+#                   type: string
+#                   default: "3000"
+#                   ui:widget: hidden
+#               required:
+#                 - app_port
+
+#             - properties:
+#                 language:
+#                   enum:
+#                     - java-maven
+#                 app_port:
+#                   type: string
+#                   default: "8080"
+#                   ui:widget: hidden
+#               required:
+#                 - app_port
+
+#             - properties:
+#                 language:
+#                   enum:
+#                     - java-gradle
+#                 app_port:
+#                   type: string
+#                   default: "8080"
+#                   ui:widget: hidden
+#               required:
+#                 - app_port
+
+#             - properties:
+#                 language:
+#                   enum:
+#                     - python
+#                 app_port:
+#                   type: string
+#                   default: "5000"
+#                   ui:widget: hidden
+#               required:
+#                 - app_port
+
+#   steps:
+
+#     - id: fetch-common
+#       name: Fetch Common Template Files
+#       action: fetch:template
+#       input:
+#         url: ./template/common
+#         values:
+#           app_name: ${{ parameters.repo }}
+#           app_env: ${{ parameters.environment }}
+#           language: ${{ parameters.language }}
+#           app_port: ${{ parameters.app_port }}
+
+#     - id: fetch-nodejs-pipeline
+#       name: Fetch Node.js Jenkinsfile
+#       if: ${{ parameters.language === "nodejs" }}
+#       action: fetch:template
+#       input:
+#         url: ./template/nodejs
+#         targetPath: ./
+#         values:
+#           app_name: ${{ parameters.repo }}
+#           app_env: ${{ parameters.environment }}
+#           app_port: ${{ parameters.app_port }}
+
+#     - id: fetch-java-maven-pipeline
+#       name: Fetch Java Maven Jenkinsfile
+#       if: ${{ parameters.language === "java-maven" }}
+#       action: fetch:template
+#       input:
+#         url: ./template/java-maven
+#         targetPath: ./
+#         values:
+#           app_name: ${{ parameters.repo }}
+#           app_env: ${{ parameters.environment }}
+#           app_port: ${{ parameters.app_port }}
+
+#     - id: fetch-java-gradle-pipeline
+#       name: Fetch Java Gradle Jenkinsfile
+#       if: ${{ parameters.language === "java-gradle" }}
+#       action: fetch:template
+#       input:
+#         url: ./template/java-gradle
+#         targetPath: ./
+#         values:
+#           app_name: ${{ parameters.repo }}
+#           app_env: ${{ parameters.environment }}
+#           app_port: ${{ parameters.app_port }}
+
+#     - id: fetch-python-pipeline
+#       name: Fetch Python Jenkinsfile
+#       if: ${{ parameters.language === "python" }}
+#       action: fetch:template
+#       input:
+#         url: ./template/python
+#         targetPath: ./
+#         values:
+#           app_name: ${{ parameters.repo }}
+#           app_env: ${{ parameters.environment }}
+#           app_port: ${{ parameters.app_port }}
+
+#     - id: push-to-repo
+#       name: Inject CI/CD Directly
+#       action: github:push
+#       input:
+#         repoUrl: github.com?owner=BackstageSSPPoC&repo=${{ parameters.repo }}
+#         branch: main
+#         commitMessage: "chore: inject ${{ parameters.language }} CI/CD template (port: ${{ parameters.app_port }})"
+#         sourcePath: ./
+
+#   output:
+#     links:
+#       - title: View Repository
+#         url: https://github.com/BackstageSSPPoC/${{ parameters.repo | trim }}/tree/main
