@@ -349,7 +349,7 @@ spec:
           title: App Port
           type: string
           ui:widget: hidden
-          default: "8080"
+          # default: "8080"
 
       # Language select hote hi app_port auto set ho jayega
       dependencies:
