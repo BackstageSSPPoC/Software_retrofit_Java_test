@@ -120,6 +120,7 @@ pipeline {
 
                     sed -i "s|\\${APP_NAME}|${APP_NAME}|g" apps/${APP_NAME}/*.yaml || true
                     sed -i "s|\\${DOCKER_IMAGE}|${IMAGE_TAG}|g" apps/${APP_NAME}/deployment.yaml || true
+                    sed -i "s|\\${APP_PORT}|${APP_PORTS}|g" apps/${APP_NAME}/*.yaml || true
 
                     git config user.email "jenkins@local"
                     git config user.name "jenkins"
